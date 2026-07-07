@@ -116,19 +116,12 @@ body {
 #numwrap { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; min-height: 0;
   justify-items: center; align-items: center; }
 #numwrap.off { opacity: .38; pointer-events: none; }
-.numbtn { height: 100%; aspect-ratio: 1/1; min-height: 0; border: none; padding: 0;
-  border-radius: 50%;
-  color: var(--pip); font-variant-numeric: tabular-nums;
-  font-size: 19px; font-weight: 700;
-  font-family: Georgia, 'Times New Roman', serif;
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255,255,255,.8), rgba(255,255,255,0) 46%),
-    radial-gradient(closest-side, rgba(0,0,0,0) 58%, rgba(184,146,63,.55) 60% 64%, rgba(0,0,0,0) 66%),
-    radial-gradient(closest-side, #fcf6e5 0 66%, rgba(0,0,0,0) 67%),
-    repeating-conic-gradient(var(--pip) 0 16deg, #f5eedd 16deg 32deg);
-  box-shadow: 0 2.5px 4px rgba(0,0,0,.45), inset 0 -2px 3px rgba(0,0,0,.12); }
-.numbtn:active { transform: translateY(1.5px) scale(.97); filter: brightness(.93);
-  box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.numbtn { height: 88%; aspect-ratio: 1/1; min-height: 0; border: none; padding: 0;
+  background: none; border-radius: 50%;
+  filter: drop-shadow(0 2.5px 3px rgba(0,0,0,.45)); }
+.numbtn svg { display: block; width: 100%; height: 100%; }
+.numbtn:active { transform: translateY(1.5px) scale(.96);
+  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.4)) brightness(.92); }
 
 /* always-visible recent moves, in the letterbox left of the board */
 #recent { position: absolute; left: max(8px, env(safe-area-inset-left));
@@ -277,7 +270,7 @@ body {
   #recent { display: none; }
   /* chips size from column width here, not row height */
   #numwrap { flex: 0 0 auto; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .numbtn { height: auto; width: 90%; }
+  .numbtn { height: auto; width: 76%; }
 }
 </style>
 </head>
@@ -731,6 +724,31 @@ function renderPegs(){
 
 /* ==================== game UI ==================== */
 const $=id=>document.getElementById(id);
+/* dice-edge poker chip (modeled on the reference photo): red body, 6 white
+   edge stripes, embossed dice faces 1-6 between them, numeral in the center */
+function chipSVG(n){
+  const C='#f2ead6';
+  const PIPS={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],
+    4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],
+    6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]};
+  let g='';
+  for(let i=0;i<6;i++)
+    g+=`<rect x='41' y='2' width='18' height='11' rx='2' fill='${C}' transform='rotate(${i*60} 50 50)'/>`;
+  [1,4,2,5,3,6].forEach((f,i)=>{
+    const pips=PIPS[f].map(([x,y])=>`<circle cx='${50+x*3.1}' cy='${8.8+y*3.1}' r='1.5' fill='${C}'/>`).join('');
+    g+=`<g transform='rotate(${30+i*60} 50 50)'><rect x='43' y='2.3' width='14' height='13' rx='2.5' fill='none' stroke='${C}' stroke-width='1.2' opacity='.8'/>${pips}</g>`;
+  });
+  return `<svg viewBox='0 0 100 100' aria-hidden='true'>
+    <defs><radialGradient id='chb${n}' cx='38%' cy='30%' r='85%'>
+      <stop offset='0%' stop-color='#c94a42'/><stop offset='55%' stop-color='#b0362e'/>
+      <stop offset='100%' stop-color='#8c2620'/></radialGradient></defs>
+    <circle cx='50' cy='50' r='49' fill='url(#chb${n})'/>${g}
+    <circle cx='50' cy='50' r='33.5' fill='none' stroke='#872420' stroke-width='1.6' opacity='.9'/>
+    <circle cx='50' cy='50' r='31.8' fill='none' stroke='#cf5850' stroke-width='.9' opacity='.7'/>
+    <text x='50' y='51' font-size='31' text-anchor='middle' dominant-baseline='central'
+      font-family='Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
+  </svg>`;
+}
 function buildPlayersUI(){
   const box=$('players');
   box.innerHTML='';
@@ -1006,11 +1024,11 @@ function renderDiscTool(){
 
 /* ==================== init ==================== */
 function init(){
-  /* number pad: 1-16, uniform (bigger scores = two taps, e.g. 16 then 4) */
+  /* number pad: 1-16 dice-edge poker chips (bigger scores = two taps, e.g. 16 then 4) */
   for(let n=1;n<=16;n++){
     const b=document.createElement('button');
     b.className='numbtn';
-    b.textContent=n;
+    b.innerHTML=chipSVG(n);
     b.addEventListener('click',()=>addScore(n));
     $('numwrap').appendChild(b);
   }
