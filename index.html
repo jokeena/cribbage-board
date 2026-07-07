@@ -65,11 +65,15 @@ body {
 
 /* ---- game layout: board on top, controls below ---- */
 #screen-game { flex-direction: column; }
-#boardWrap { flex: 1.75; position: relative; min-width: 0; min-height: 0; }
-#board { width: 100%; height: 100%; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
-/* board hugs the right; menu/history with undo/redo below them top-left */
-#topbar { position: absolute; top: max(6px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left));
-  display: grid; grid-template-columns: repeat(2, 40px); gap: 7px; z-index: 6; }
+/* controls get a real column on the left; the board takes the remaining width,
+   so they can never overlap regardless of viewport size */
+#boardWrap { flex: 1.75; display: flex; gap: 4px; min-width: 0; min-height: 0;
+  padding-top: max(4px, env(safe-area-inset-top)); }
+#leftcol { flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px;
+  padding: 3px 0 0 max(8px, env(safe-area-inset-left)); }
+#board { flex: 1; min-width: 0; height: 100%; display: block;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+#topbar { display: grid; grid-template-columns: repeat(2, 40px); gap: 7px; }
 #topbar button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--wood-edge);
   background: linear-gradient(180deg, var(--wood-hi), var(--wood)); color: var(--wood-ink);
   font-size: 17px; box-shadow: 0 2px 6px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,240,200,.25); }
@@ -123,11 +127,8 @@ body {
 .numbtn:active { transform: translateY(1.5px) scale(.96);
   filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.4)) brightness(.92); }
 
-/* always-visible recent moves, under the buttons in the felt left of the board */
-#recent { position: absolute; left: max(8px, env(safe-area-inset-left));
-  top: calc(max(6px, env(safe-area-inset-top)) + 100px);
-  display: flex; flex-direction: column; gap: 4px; width: 87px; z-index: 5; pointer-events: none; }
-@media (max-width: 719px) { #recent { display: none; } } /* no felt margin on narrow landscape phones */
+/* always-visible recent moves, under the buttons in the left column */
+#recent { display: flex; flex-direction: column; gap: 4px; width: 87px; pointer-events: none; }
 .rentry { display: flex; align-items: center; gap: 4px; background: rgba(6,22,13,.6);
   border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 2px 7px;
   font-size: 10.5px; color: #ecf4e9; }
@@ -262,7 +263,9 @@ body {
 
 /* ---- portrait ---- */
 @media (orientation: portrait) {
-  #boardWrap { flex: 0 0 34%; }
+  #boardWrap { flex: 0 0 40%; flex-direction: column; }
+  #leftcol { flex-direction: row; padding-top: max(4px, env(safe-area-inset-top)); }
+  #topbar { grid-template-columns: repeat(4, 40px); }
   #controls { flex-direction: column; }
   #players { flex: 0 0 auto; flex-direction: row; }
   .pcard { gap: 7px; }
@@ -294,14 +297,16 @@ body {
 <!-- ================= GAME ================= -->
 <div class="screen" id="screen-game">
   <div id="boardWrap">
-    <div id="topbar">
-      <button id="menuBtn" title="Menu">☰</button>
-      <button id="histBtn" title="History">📜</button>
-      <button id="undoBtn" title="Undo">↺</button>
-      <button id="redoBtn" title="Redo">↻</button>
+    <div id="leftcol">
+      <div id="topbar">
+        <button id="menuBtn" title="Menu">☰</button>
+        <button id="histBtn" title="History">📜</button>
+        <button id="undoBtn" title="Undo">↺</button>
+        <button id="redoBtn" title="Redo">↻</button>
+      </div>
+      <div id="recent"></div>
     </div>
     <svg id="board" viewBox="0 0 1200 420" preserveAspectRatio="xMaxYMid meet"></svg>
-    <div id="recent"></div>
   </div>
   <div id="controls">
     <div id="players"></div>
