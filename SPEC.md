@@ -8,18 +8,30 @@ The app is a beautiful board, not a rules referee: scoring is free-form, players
 - **Single self-contained HTML file** (`index.html`) — inline CSS/JS, no build step, no dependencies.
 - **localStorage persistence**: full game state (including undo history) saved on every change.
   Opening the app **auto-resumes silently** into the in-progress game. "New game" lives in the menu.
-- **Landscape-first mobile layout** (board left, controls right); gracefully stacks vertically in portrait.
+- **Landscape-first mobile layout**: **board on top, controls below** (player cards left, number pad right).
+  Portrait stacks the same way with compacted cards.
 - No haptics, no sounds (explicitly out of scope).
 
 ## Board
 
-- **One continuous 121-hole oval loop** (single ring, no laps). Two start holes per lane; hole 121 is the finish (starred), adjacent to start.
-- **2 or 3 players**, one concentric lane each.
-- **Skunk line** marked between holes 90/91 and **double-skunk line** between holes 60/61 (🦨 markers on the track).
-- Hole labels every 10; classic 5-hole grouping cues.
-- **Classic front-peg / back-peg leapfrog**: scoring N moves the back peg to (front + N); it becomes the new front peg. Pegs animate along the track.
-- Because 121 holes on one ring is tight on a phone, each player's current score is **also shown as a big numeral** on their player card.
-- **Themes** re-skin colors/materials (Walnut Classic default, plus Midnight, Ocean, Neon). Selected in the menu, persisted.
+- **Snail / 3-street track** like a classic long wooden board (modeled on the reference photo
+  `en_280.png`): the track runs along the top edge, U-turns around the right end, runs back along
+  the bottom, U-turns at the left end **curling inward**, and finishes along the middle street —
+  ★ hole 121 near the board's center. Long and narrow slab proportions.
+- **2 or 3 players**, one parallel lane each, drawn as **colored lane stripes in each player's peg
+  color** (like the painted tracks on the reference board). Two start holes per lane.
+- **Skunk line** between holes 90/91 and **double-skunk line** between holes 60/61: an accent line
+  across the track anchored to a 🦨 plaque (double marked ×2). The 60/90 hole labels are omitted —
+  the plaques mark those spots.
+- Hole labels every 10 (outside the track on straights, inside the U on curves); separator ticks
+  every 5 holes.
+- **On-board match scoreboard**: 7 small holes per player with their name, on the slab in the gap
+  below the middle street ("MATCH · FIRST TO 7"), pegged in player colors.
+- **Classic front-peg / back-peg leapfrog**: scoring N moves the back peg to (front + N); it becomes
+  the new front peg. Pegs animate along the track and have gradient shading + drop shadows.
+- Each player's current score is **also shown as a big numeral** on their player card below the board.
+- Wood-grain texture (SVG turbulence), slab gradient and vignette; **themes** re-skin
+  colors/materials (Walnut Classic default, plus Midnight, Ocean, Neon). Selected in the menu, persisted.
 
 ## Players & setup
 
