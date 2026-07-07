@@ -23,7 +23,7 @@ body {
   --hole: #26140a; --hole-ring: rgba(240,210,160,.35); --hole5: rgba(255,220,160,.65);
   --track-label: #d9bd93; --center-title: rgba(244,222,184,.5);
   --text: #f1ecdc; --muted: #b6cdb9;
-  --panel: rgba(13,37,22,.94); --skunk-line: #e8b84b;
+  --panel: rgba(13,37,22,.94); --skunk-line: #f2e0ba;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-image:
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='3'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='160' height='160' filter='url(%23f)'/></svg>"),
@@ -65,18 +65,19 @@ body {
 
 /* ---- game layout: board on top, controls below ---- */
 #screen-game { flex-direction: column; }
-#boardWrap { flex: 1.25; position: relative; min-width: 0; min-height: 0; }
-#board { width: 100%; height: 100%; display: block; filter: drop-shadow(0 6px 18px rgba(0,0,0,.45)); }
-#topbar { position: absolute; top: max(6px, env(safe-area-inset-top)); left: max(6px, env(safe-area-inset-left));
-  display: flex; gap: 7px; z-index: 6; }
-#topbar button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--wood-edge);
+#boardWrap { flex: 1.5; position: relative; min-width: 0; min-height: 0; }
+#board { width: 100%; height: 100%; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+#topbar, #topbarR { position: absolute; top: max(6px, env(safe-area-inset-top)); display: flex; gap: 7px; z-index: 6; }
+#topbar { left: max(6px, env(safe-area-inset-left)); }
+#topbarR { right: max(6px, env(safe-area-inset-right)); }
+#topbar button, #topbarR button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--wood-edge);
   background: linear-gradient(180deg, var(--wood-hi), var(--wood)); color: var(--wood-ink);
   font-size: 17px; box-shadow: 0 2px 6px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,240,200,.25); }
-#topbar button:disabled { opacity: .35; }
+#topbar button:disabled, #topbarR button:disabled { opacity: .35; }
 
 #controls { flex: 1; display: flex; gap: 9px; min-height: 0;
   padding: 2px max(9px, env(safe-area-inset-right)) max(9px, env(safe-area-inset-bottom)) max(9px, env(safe-area-inset-left)); }
-#players { flex: 0 0 clamp(225px, 30vw, 330px); display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+#players { flex: 0 0 clamp(195px, 26vw, 300px); display: flex; flex-direction: column; gap: 6px; min-height: 0; }
 .pcard { flex: 1; display: flex; align-items: stretch; gap: 10px;
   background: linear-gradient(180deg, #fdf8ea, var(--ivory-2));
   border: 1.5px solid var(--ivory-edge); border-radius: 12px; overflow: hidden;
@@ -92,7 +93,7 @@ body {
 .pcband i { width: 6px; height: 6px; border-radius: 50%; background: rgba(20,10,5,.5);
   box-shadow: inset 0 1px 1px rgba(0,0,0,.7), 0 0 0 1.2px rgba(255,255,255,.4); }
 .pcmain { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding: 5px 0; }
-.pcard .nm { font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif;
+.pcard .nm { font-size: 14.5px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prog { position: relative; height: 6px; border-radius: 4px; background: rgba(51,38,26,.16);
   box-shadow: inset 0 1px 1.5px rgba(0,0,0,.25); }
@@ -101,7 +102,7 @@ body {
   transition: width .45s cubic-bezier(.35,1.2,.45,1); }
 .prog .notch { position: absolute; top: -1.5px; bottom: -1.5px; width: 2px; border-radius: 1px;
   background: rgba(51,38,26,.4); }
-.pcard .score { align-self: center; flex: 0 0 auto; font-size: 31px; font-weight: 700; line-height: 1;
+.pcard .score { align-self: center; flex: 0 0 auto; font-size: 27px; font-weight: 700; line-height: 1;
   font-variant-numeric: tabular-nums; font-family: Georgia, 'Times New Roman', serif;
   color: var(--pc); text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .pcard.nudge { animation: nudge .35s; }
@@ -111,24 +112,15 @@ body {
 @keyframes floatup { from { opacity: 1; transform: translateY(6px); } to { opacity: 0; transform: translateY(-16px); } }
 
 #padcol { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-#numwrap { flex: 1; display: flex; gap: 7px; min-height: 0; }
+/* one uniform 1-16 pad (bigger scores are entered as two taps, e.g. 16 then 4) */
+#numwrap { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; min-height: 0; }
 #numwrap.off { opacity: .38; pointer-events: none; }
-#bigNums { flex: 0 0 34%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-#smallNums { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
-/* point buttons styled as little playing cards with corner pips */
-.numbtn { position: relative; border: 1px solid var(--ivory-edge); border-bottom-width: 3px; border-radius: 9px;
+.numbtn { border: 1px solid var(--ivory-edge); border-bottom-width: 3px; border-radius: 10px;
   background: linear-gradient(180deg, #fefaf0, var(--ivory-2));
-  color: var(--ink); font-variant-numeric: tabular-nums; padding: 0; min-height: 0;
+  color: var(--pip); font-variant-numeric: tabular-nums; padding: 0; min-height: 0;
+  font-size: 21px; font-weight: 700;
   font-family: Georgia, 'Times New Roman', serif;
   box-shadow: 0 2px 4px rgba(0,0,0,.35); }
-.numbtn::before, .numbtn::after { content: attr(data-suit); position: absolute; font-size: 9px;
-  opacity: .55; color: #241c12; line-height: 1; pointer-events: none; }
-.numbtn::before { top: 4px; left: 6px; }
-.numbtn::after { bottom: 4px; right: 6px; transform: rotate(180deg); }
-.numbtn.rs::before, .numbtn.rs::after { color: #b3352e; }
-#bigNums .numbtn { font-size: 28px; font-weight: 700; border-radius: 12px; color: var(--pip); }
-#bigNums .numbtn::before, #bigNums .numbtn::after { font-size: 12px; }
-#smallNums .numbtn { font-size: 14.5px; font-weight: 700; }
 .numbtn:active { background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: var(--accent-text);
   transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
 
@@ -150,7 +142,7 @@ body {
 .hole.h5 { stroke: var(--hole5); stroke-width: 1.4; }
 .hole.finish { stroke: var(--accent); stroke-width: 2.2; }
 .tlabel { fill: var(--track-label); font-size: 12.5px; font-weight: 650; text-anchor: middle; dominant-baseline: middle; }
-.skline { stroke: var(--skunk-line); stroke-width: 3; stroke-linecap: round; opacity: .9; }
+.skline { stroke: var(--skunk-line); stroke-width: 4.5; stroke-linecap: round; opacity: .95; }
 .skplaque { fill: var(--panel); stroke: var(--skunk-line); stroke-width: 1.6; }
 .skemoji { font-size: 17px; text-anchor: middle; dominant-baseline: central; }
 .skx2 { fill: var(--skunk-line); font-size: 10.5px; font-weight: 800; text-anchor: middle; }
@@ -275,10 +267,9 @@ body {
   #players { flex: 0 0 auto; flex-direction: row; }
   .pcard { gap: 7px; }
   .pcard .nm { font-size: 13px; }
-  .pcard .score { font-size: 23px; }
+  .pcard .score { font-size: 22px; }
   #recent { display: none; }
-  #bigNums { flex: 0 0 40%; }
-  #smallNums { grid-template-columns: repeat(6, 1fr); }
+  #numwrap { grid-template-columns: repeat(4, 1fr); }
 }
 </style>
 </head>
@@ -303,9 +294,11 @@ body {
   <div id="boardWrap">
     <div id="topbar">
       <button id="menuBtn" title="Menu">☰</button>
+      <button id="histBtn" title="History">📜</button>
+    </div>
+    <div id="topbarR">
       <button id="undoBtn" title="Undo">↺</button>
       <button id="redoBtn" title="Redo">↻</button>
-      <button id="histBtn" title="History">📜</button>
     </div>
     <svg id="board" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid meet"></svg>
     <div id="recent"></div>
@@ -313,10 +306,7 @@ body {
   <div id="controls">
     <div id="players"></div>
     <div id="padcol">
-      <div id="numwrap">
-        <div id="bigNums"></div>
-        <div id="smallNums"></div>
-      </div>
+      <div id="numwrap"></div>
     </div>
   </div>
 </div>
@@ -352,8 +342,8 @@ body {
       <button data-v="1">Crib hand</button>
     </div>
     <div class="slots" id="handSlots"></div>
-    <div class="cgrid" id="handGrid"></div>
     <div id="handResult"></div>
+    <div class="cgrid" id="handGrid"></div>
   </div>
 </div>
 
@@ -604,6 +594,8 @@ function buildBoard(){
   const fl=el('filter',{id:'grain',x:'0%',y:'0%',width:'100%',height:'100%'},defs);
   el('feTurbulence',{type:'fractalNoise',baseFrequency:'0.009 0.13',numOctaves:3,seed:11},fl);
   el('feColorMatrix',{type:'matrix',values:'0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .9 .9 .9 0 0'},fl);
+  /* clip the noise back to the rounded rect (filters ignore the source shape) */
+  el('feComposite',{in2:'SourceAlpha',operator:'in'},fl);
   const vg=el('radialGradient',{id:'vig',cx:'50%',cy:'50%',r:'72%'},defs);
   el('stop',{offset:'62%','stop-color':'rgba(0,0,0,0)'},vg);
   el('stop',{offset:'100%','stop-color':'rgba(0,0,0,.3)'},vg);
@@ -1007,19 +999,14 @@ function renderDiscTool(){
 
 /* ==================== init ==================== */
 function init(){
-  /* number pad (corner suit pips cycle like a deck) */
-  const SUIT_CYCLE=['♠','♥','♣','♦'];
-  const mkNum=(n,parent)=>{
+  /* number pad: 1-16, uniform (bigger scores = two taps, e.g. 16 then 4) */
+  for(let n=1;n<=16;n++){
     const b=document.createElement('button');
-    const su=SUIT_CYCLE[n%4];
-    b.className='numbtn'+(su==='♥'||su==='♦'?' rs':'');
-    b.dataset.suit=su;
+    b.className='numbtn';
     b.textContent=n;
     b.addEventListener('click',()=>addScore(n));
-    parent.appendChild(b);
-  };
-  for(let n=1;n<=6;n++)mkNum(n,$('bigNums'));
-  for(let n=7;n<=29;n++)mkNum(n,$('smallNums'));
+    $('numwrap').appendChild(b);
+  }
   /* topbar */
   $('undoBtn').addEventListener('click',undo);
   $('redoBtn').addEventListener('click',redo);
