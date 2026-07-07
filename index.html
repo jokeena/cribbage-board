@@ -76,7 +76,7 @@ body {
 #topbar button:disabled { opacity: .35; }
 
 #controls { flex: 1; display: flex; gap: 9px; min-height: 0;
-  padding: 2px max(9px, env(safe-area-inset-right)) max(9px, env(safe-area-inset-bottom)) max(9px, env(safe-area-inset-left)); }
+  padding: 9px max(9px, env(safe-area-inset-right)) max(9px, env(safe-area-inset-bottom)) max(9px, env(safe-area-inset-left)); }
 #players { flex: 0 0 clamp(195px, 26vw, 300px); display: flex; flex-direction: column; gap: 6px; min-height: 0; }
 .pcard { flex: 1; display: flex; align-items: stretch; gap: 10px;
   background: linear-gradient(180deg, #fdf8ea, var(--ivory-2));
@@ -103,7 +103,7 @@ body {
 .prog .notch { position: absolute; top: -1.5px; bottom: -1.5px; width: 2px; border-radius: 1px;
   background: rgba(51,38,26,.4); }
 .pcard .score { align-self: center; flex: 0 0 auto; font-size: 27px; font-weight: 700; line-height: 1;
-  font-variant-numeric: tabular-nums; font-family: Georgia, 'Times New Roman', serif;
+  font-variant-numeric: tabular-nums; font-family: 'Times New Roman', Georgia, serif;
   color: var(--pc); text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .pcard.nudge { animation: nudge .35s; }
 @keyframes nudge { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -126,10 +126,11 @@ body {
 /* always-visible recent moves, in the letterbox left of the board */
 #recent { position: absolute; left: max(8px, env(safe-area-inset-left));
   top: max(8px, env(safe-area-inset-top));
-  display: flex; flex-direction: column; gap: 4px; width: 104px; z-index: 5; pointer-events: none; }
-.rentry { display: flex; align-items: center; gap: 5px; background: rgba(6,22,13,.6);
-  border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 2.5px 8px;
-  font-size: 11px; color: #ecf4e9; }
+  display: flex; flex-direction: column; gap: 4px; width: 72px; z-index: 5; pointer-events: none; }
+@media (max-width: 719px) { #recent { display: none; } } /* no felt margin on narrow landscape phones */
+.rentry { display: flex; align-items: center; gap: 4px; background: rgba(6,22,13,.6);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 2px 7px;
+  font-size: 10.5px; color: #ecf4e9; }
 .rentry .dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
 .rentry .rn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rentry b { margin-left: auto; font-variant-numeric: tabular-nums; }
@@ -746,7 +747,7 @@ function chipSVG(n){
     <circle cx='50' cy='50' r='33.5' fill='none' stroke='#872420' stroke-width='1.6' opacity='.9'/>
     <circle cx='50' cy='50' r='31.8' fill='none' stroke='#cf5850' stroke-width='.9' opacity='.7'/>
     <text x='50' y='51' font-size='31' text-anchor='middle' dominant-baseline='central'
-      font-family='Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
+      font-family='Times New Roman, Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
   </svg>`;
 }
 function buildPlayersUI(){
