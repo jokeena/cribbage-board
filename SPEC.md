@@ -30,13 +30,22 @@ The app is a beautiful board, not a rules referee: scoring is free-form, players
 - **Classic front-peg / back-peg leapfrog**: scoring N moves the back peg to (front + N); it becomes
   the new front peg. Pegs animate along the track and have gradient shading + drop shadows.
 - Each player's current score is **also shown as a big numeral** on their player card below the board.
-- Wood-grain texture (SVG turbulence), slab gradient and vignette; **themes** re-skin
-  colors/materials (Walnut Classic default, plus Midnight, Ocean, Neon). Selected in the menu, persisted.
+- Wood-grain texture (SVG turbulence), slab gradient and vignette, **wooden rail with brass corner
+  screws** framing the slab, and hole 121 separated from the 116–120 group by its own tick.
+- **One theme, mastered** (theme picker removed): green felt card table with fuzz texture and a
+  warm top sheen, walnut board, gold accents. Point buttons and player cards are ivory card-stock
+  styled like playing cards — serif numerals, corner suit pips (red pips on 1–6).
+- No caption text on the board's match scoreboard, and no scoring-hint text under the board.
 
 ## Players & setup
 
 - Choose 2 or 3 players. Names default to Player 1/2/3; editable.
-- Each player picks a **peg color from presets** (duplicates disabled). Colors carry into pegs, player cards, and the history log.
+- **Fixed palettes**: 2-player is red vs blue, 3-player is red vs blue vs green — players only pick
+  *which* of those colors is theirs (tapping a taken color swaps with its holder). Colors carry into
+  lane stripes, pegs, player cards, and history.
+- **Player cards** (below the board): color band with peg-hole motif, serif name, a 0→121 progress
+  bar with notches at the double-skunk (61) and skunk (91) lines, and a big serif score in the
+  player's color.
 
 ## Scoring input
 
@@ -50,6 +59,8 @@ The app is a beautiful board, not a rules referee: scoring is free-form, players
 
 - **Unlimited undo** (steps back one score at a time) with **redo** after undo.
 - **Slide-out history panel** listing every entry (player, points, from→to), newest first. Reference only — no tap-to-revert.
+- **Recent moves** (last ~6) always visible as small fading chips in the felt margin left of the
+  board — no tap needed. Hidden in portrait.
 - Undo **remains available after a game ends**, so a mis-tap that "won" the game can be reversed (this also reverses the match points that were awarded).
 - History resets when the next game starts.
 
@@ -92,7 +103,7 @@ Match points can never go below 0.
 
 ## Menu drawer
 
-☰ menu: Hand counter · Discard helper · Theme picker · New game (same players, confirm) ·
+☰ menu: Hand counter · Discard helper · New game (same players, confirm) ·
 New match / change players (back to setup, confirm).
 
 ## Deferred / v2 ideas
