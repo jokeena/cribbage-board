@@ -788,7 +788,8 @@ function buildPlayersUI(){
   S.players.forEach((p,i)=>{
     const b=document.createElement('button');
     b.className='pcard';b.dataset.i=i;
-    b.style.setProperty('--pc',p.color);
+    /* card accents use the same darkened tone as the point chips */
+    b.style.setProperty('--pc',darken(p.color,0.64));
     b.innerHTML=`<span class="pcband"><i></i><i></i></span>
       <div class="pcmain"><span class="nm"></span>
         <div class="prog"><span class="notch" style="left:${(61/121*100).toFixed(1)}%"></span>
