@@ -126,12 +126,17 @@ body {
   justify-items: center; align-items: center;
   --chip: #812520; --chip-hi: #913530; --chip-lo: #530000; --chip-rd: #4f0000; --chip-rl: #a34742; }
 #numwrap.off { opacity: .38; pointer-events: none; }
+/* The colored chip BODY is the button's CSS background (recoloring it is a cheap
+   composited paint that never moves anything). The SVG on top is static and
+   color-independent (cream stripes/dice/numeral + translucent emboss rings), so
+   switching players repaints nothing in the SVG and the chips don't drift.
+   box-shadow (not filter:drop-shadow) keeps the shadow from re-rasterizing. */
 .numbtn { height: 88%; aspect-ratio: 1/1; min-height: 0; border: none; padding: 0;
-  background: none; border-radius: 50%;
-  filter: drop-shadow(0 2.5px 3px rgba(0,0,0,.45)); }
+  border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 37% 29%, var(--chip-hi), var(--chip) 56%, var(--chip-lo));
+  box-shadow: 0 2.5px 3px rgba(0,0,0,.45); }
 .numbtn svg { display: block; width: 100%; height: 100%; }
-.numbtn:active { transform: translateY(1.5px) scale(.96);
-  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.4)) brightness(.92); }
+.numbtn:active { transform: translateY(1.5px) scale(.97); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
 
 /* always-visible recent moves, under the buttons in the left column */
 #recent { display: flex; flex-direction: column; gap: 4px; width: 87px; pointer-events: none; }
@@ -795,13 +800,11 @@ function chipSVG(n){
     const pips=PIPS[f].map(([x,y])=>`<circle cx='${50+x*3.1}' cy='${8.8+y*3.1}' r='1.5' fill='${C}'/>`).join('');
     g+=`<g transform='rotate(${30+i*60} 50 50)'><rect x='43' y='2.3' width='14' height='13' rx='2.5' fill='none' stroke='${C}' stroke-width='1.2' opacity='.8'/>${pips}</g>`;
   });
-  return `<svg viewBox='0 0 100 100' aria-hidden='true'>
-    <defs><radialGradient id='cg${n}' cx='38%' cy='30%' r='85%'>
-      <stop offset='0%' style='stop-color:var(--chip-hi)'/><stop offset='55%' style='stop-color:var(--chip)'/>
-      <stop offset='100%' style='stop-color:var(--chip-lo)'/></radialGradient></defs>
-    <circle cx='50' cy='50' r='49' fill='url(#cg${n})'/>${g}
-    <circle cx='50' cy='50' r='33.5' fill='none' style='stroke:var(--chip-rd)' stroke-width='1.6' opacity='.9'/>
-    <circle cx='50' cy='50' r='31.8' fill='none' style='stroke:var(--chip-rl)' stroke-width='.9' opacity='.7'/>
+  // Everything here is color-independent (cream marks + translucent emboss rings
+  // that read as embossed on any body color), so it never repaints on recolor.
+  return `<svg viewBox='0 0 100 100' aria-hidden='true'>${g}
+    <circle cx='50' cy='50' r='33.5' fill='none' stroke='rgba(0,0,0,.30)' stroke-width='1.6'/>
+    <circle cx='50' cy='50' r='31.9' fill='none' stroke='rgba(255,255,255,.16)' stroke-width='.9'/>
     <text x='50' y='51' font-size='31' text-anchor='middle' dominant-baseline='central'
       font-family='Times New Roman, Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
   </svg>`;
