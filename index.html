@@ -417,16 +417,24 @@ function scoreHand(hand,cut,isCrib){
    points; otherwise winner +1 and every non-skunked other player +1. */
 function computeMatchDeltas(fronts,match,w){
   const n=fronts.length,d=new Array(n).fill(0);
-  d[w]+=1;
+  d[w]+=1;                                   // the win itself
+  const level=i=>fronts[i]<=60?2:fronts[i]<=90?1:0;  // 0 none · 1 skunk · 2 double
   for(let i=0;i<n;i++){
     if(i===w)continue;
-    const steps=fronts[i]<=60?2:fronts[i]<=90?1:0;
-    for(let s=0;s<steps;s++){
-      if(match[i]+d[i]>0){d[i]-=1;}
-      else{
-        d[w]+=1;
-        for(let j=0;j<n;j++)if(j!==w&&j!==i&&fronts[j]>90)d[j]+=1;
-      }
+    const lv=level(i);
+    if(!lv)continue;
+    const pay=Math.min(match[i],lv);          // skunked player drops, never below 0
+    d[i]-=pay;
+    // points the loser couldn't pay "float" out one at a time: winner first,
+    // then the least-skunked other opponent(s). So a skunk always widens the
+    // gap even against a broke opponent, without the winner vacuuming up all of it.
+    let short=lv-pay;
+    if(short){
+      const others=[];
+      for(let j=0;j<n;j++)if(j!==w&&j!==i)others.push(j);
+      others.sort((a,b)=>level(a)-level(b));
+      const recips=[w,...others];
+      for(let s=0;s<short;s++)d[recips[s%recips.length]]+=1;
     }
   }
   return d;

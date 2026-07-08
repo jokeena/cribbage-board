@@ -85,14 +85,19 @@ Shown as up to 7 peg dots on each player card. **First to 7 wins the match.**
 Match points can never go below 0.
 
 - **Win** = winner +1.
-- **Skunk** = one extra step, taken from the loser first:
-  loser above 0 → loser −1 and winner +1 total; loser at 0 → winner +2 total.
-- **Double skunk** = two extra steps, loser-first:
-  loser at 0 → winner +3; loser at 1 → winner +2, loser −1; loser at 2+ → winner +1, loser −2.
-- **3-player**: apply the rule **per opponent independently**; effects stack. Each skunked opponent
-  is evaluated separately (double skunk = 2 steps against that opponent). For each step a skunked
-  opponent cannot pay (already at 0), the winner gains +1 **and every non-skunked other player gains +1**
-  ("for not being skunked").
+- **Each skunked opponent drops** by their skunk depth: single skunk (opponent finished ≤ 90) = −1,
+  double skunk (≤ 60) = −2 — but never below 0 match points.
+- **Unpayable ("floating") points**: whatever a skunked opponent can't pay (because they'd go below 0)
+  doesn't just vanish or all pile on the winner. Those points are handed out one at a time, in
+  priority order: **the winner first, then the least-skunked *other* opponent(s)**. This keeps a skunk
+  meaningful even against a broke opponent while spreading the benefit.
+- **3-player** works the same way, per opponent, with floating points shared as above. Worked examples
+  (blue wins, double-skunks green, single-skunks red):
+  - Everyone at 0/0/0 → **blue 3, red 1, green 0** (green's 2 unpayable points float to blue + red;
+    red's 1 unpayable point floats to blue; plus blue's +1 win).
+  - Starting 4/3/3 → **5/2/1** (nobody's broke, so it's just win +1, red −1, green −2).
+- **2-player** falls out of the same rule: skunk of a broke opponent → winner +2; double skunk of a
+  broke opponent → winner +3; if the loser has points they drop instead (down 1 / down 2).
 - Reaching 7 → **match celebration**, then the match pegs reset for a new match (game winner takes
   precedence if multiple players cross 7 in the same resolution).
 
