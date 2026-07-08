@@ -126,4 +126,10 @@ New match / change players (back to setup, confirm).
 
 ## Testing hook
 
-`index.html?demo` auto-starts a throwaway 2-player demo game with sample scores (no persistence) — used for headless screenshot verification. Variants: `?demo=win` (plays to 121 to show the game-over screen), `?demo=hand` (opens the hand counter pre-filled with the perfect 29), `?demo=disc` (opens the 2-player discard helper pre-filled with 6 cards), `?demo=3` (3-player game, Amy/blue selected — shows blue chips), `?demo=disc3` (opens the 3-player discard helper pre-filled with 5 cards).
+`index.html?demo` auto-starts a throwaway 2-player demo game with sample scores (no persistence) — used for headless screenshot verification. Variants: `?demo=win` (plays to 121 to show the game-over screen), `?demo=hand` (opens the hand counter pre-filled with the perfect 29), `?demo=disc` (opens the 2-player discard helper pre-filled with 6 cards), `?demo=3` (3-player game, Amy/blue selected — shows blue chips), `?demo=disc3` (opens the 3-player discard helper pre-filled with 5 cards), `?demo=confirm` (opens the in-app confirm dialog).
+
+## Notes / gotchas
+
+- **No `window.confirm()`/`alert()`/`prompt()`** — these are silently blocked when the app runs
+  installed/standalone (added to the iOS home screen), so destructive actions (New game, New match)
+  use the in-app confirm overlay (`askConfirm`) instead.

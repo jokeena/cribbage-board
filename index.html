@@ -342,6 +342,17 @@ body {
   <div class="sheet" id="overSheet"></div>
 </div>
 
+<!-- ================= CONFIRM (native confirm() is blocked in installed apps) ============ -->
+<div class="overlay" id="confirmOverlay">
+  <div class="sheet" style="width:min(430px,94vw)">
+    <div id="confirmMsg" style="font-size:16px;line-height:1.4;margin:2px 0 2px"></div>
+    <div class="orow">
+      <button id="confirmNo">Cancel</button>
+      <button id="confirmYes" class="primary">Yes</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= HAND COUNTER ================= -->
 <div class="overlay" id="handOverlay">
   <div class="sheet">
@@ -557,6 +568,13 @@ function newMatch(){
 function toSetup(){
   S.screen='setup';S.phase='play';S.hist=[];S.redo=[];S.sel=null;
   save();prefillSetup();showScreen('setup');
+}
+/* in-app confirm — window.confirm() is silently blocked in installed/standalone iOS apps */
+let confirmCb=null;
+function askConfirm(msg,onYes){
+  confirmCb=onYes;
+  $('confirmMsg').textContent=msg;
+  $('confirmOverlay').classList.add('open');
 }
 
 /* ==================== board geometry / svg ====================
@@ -1097,12 +1115,20 @@ function init(){
   $('miHand').addEventListener('click',()=>{closeDrawers();renderHandTool();$('handOverlay').classList.add('open');});
   $('miDiscard').addEventListener('click',()=>{closeDrawers();renderDiscTool();$('discOverlay').classList.add('open');});
   $('miNewGame').addEventListener('click',()=>{
-    if(S.hist.length&&!confirm('Start a new game? Current pegs will reset (match score kept).'))return;
-    closeDrawers();nextGame();
+    closeDrawers();
+    if(S.hist.length)askConfirm('Start a new game? The board resets; match score is kept.',nextGame);
+    else nextGame();
   });
   $('miNewMatch').addEventListener('click',()=>{
-    if(!confirm('End this match and go back to player setup?'))return;
-    closeDrawers();toSetup();
+    closeDrawers();
+    askConfirm('End this match and go back to player setup? Match score resets.',toSetup);
+  });
+  $('confirmYes').addEventListener('click',()=>{
+    $('confirmOverlay').classList.remove('open');
+    const cb=confirmCb;confirmCb=null;if(cb)cb();
+  });
+  $('confirmNo').addEventListener('click',()=>{
+    $('confirmOverlay').classList.remove('open');confirmCb=null;
   });
   /* overlays close buttons */
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).classList.remove('open')));
@@ -1137,6 +1163,7 @@ function init(){
       DT.cards=[{r:5,su:0},{r:5,su:1},{r:6,su:2},{r:4,su:3},{r:11,su:0},{r:13,su:1}];
       renderDiscTool();$('discOverlay').classList.add('open');
     }
+    if(demoV==='confirm')askConfirm('Start a new game? The board resets; match score is kept.',nextGame);
     return;
   }
   const saved=load();
