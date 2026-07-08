@@ -357,7 +357,7 @@ body {
   <div class="sheet">
     <button class="x" data-close="discOverlay">✕</button>
     <h2>🎯 Discard helper</h2>
-    <div class="toolnote">Tap your 6 dealt cards. Expected values: hand is exact over all cuts; crib is estimated (opponent discards simulated).</div>
+    <div class="toolnote">Tap your dealt cards (6 in 2-player, 5 in 3-player). Expected values: hand is exact over all cuts; crib is estimated (opponent discards simulated).</div>
     <div class="ttoggle" id="cribOwner">
       <button data-v="1" class="on">My crib</button>
       <button data-v="0">Their crib</button>
@@ -426,28 +426,38 @@ function computeMatchDeltas(fronts,match,w){
   return d;
 }
 
-function bestDiscards(six,myCrib){
+/* hand: 6 cards (2-player, discard 2) or 5 cards (3-player, discard 1). Always
+   keeps 4. Hand EV is exact over every cut; crib EV is a Monte-Carlo estimate
+   where the crib is filled to 4 cards with random unseen cards (opponent
+   discards + any auto-dealt card) plus a random cut. */
+function bestDiscards(hand,myCrib){
   const rng=mulberry32(0xC12BBA6E);
-  const used=new Set(six.map(cardKey));
+  const used=new Set(hand.map(cardKey));
   const rem=[];
   for(let r=1;r<=13;r++)for(let su=0;su<4;su++){
     const c={r,su};
     if(!used.has(cardKey(c)))rem.push(c);
   }
+  const H=hand.length,dc=H-4,fill=4-dc,N=700;
+  const combos=[];
+  (function rec(start,cur){
+    if(cur.length===dc){combos.push(cur.slice());return;}
+    for(let i=start;i<H;i++){cur.push(i);rec(i+1,cur);cur.pop();}
+  })(0,[]);
   const res=[];
-  for(let i=0;i<6;i++)for(let j=i+1;j<6;j++){
-    const disc=[six[i],six[j]];
-    const keep=six.filter((_,k)=>k!==i&&k!==j);
+  for(const idx of combos){
+    const dset=new Set(idx);
+    const disc=idx.map(k=>hand[k]);
+    const keep=hand.filter((_,k)=>!dset.has(k));
     let hs=0;
     for(const cut of rem)hs+=scoreHand(keep,cut,false).total;
     const hEV=hs/rem.length;
-    let cs=0;const N=700;
+    let cs=0;
     for(let t=0;t<N;t++){
-      const a=Math.floor(rng()*rem.length);
-      let b,c2;
-      do{b=Math.floor(rng()*rem.length);}while(b===a);
-      do{c2=Math.floor(rng()*rem.length);}while(c2===a||c2===b);
-      cs+=scoreHand([disc[0],disc[1],rem[a],rem[b]],rem[c2],true).total;
+      const seen=new Set(),picks=[];
+      while(picks.length<fill+1){const x=Math.floor(rng()*rem.length);if(!seen.has(x)){seen.add(x);picks.push(x);}}
+      const crib=disc.concat(picks.slice(0,fill).map(x=>rem[x]));
+      cs+=scoreHand(crib,rem[picks[fill]],true).total;
     }
     const cEV=cs/N;
     res.push({keep,disc,hEV,cEV,net:hEV+(myCrib?cEV:-cEV)});
@@ -730,10 +740,12 @@ function renderPegs(){
 
 /* ==================== game UI ==================== */
 const $=id=>document.getElementById(id);
-/* dice-edge poker chip (modeled on the reference photo): red body, 6 white
-   edge stripes, embossed dice faces 1-6 between them, numeral in the center */
-function chipSVG(n){
-  const C='#f2ead6';
+/* dice-edge poker chip (modeled on the reference photo): colored body, 6 white
+   edge stripes, embossed dice faces 1-6 between them, numeral in the center.
+   Body color follows the currently-selected player so it's clear whose points
+   you're about to add. Unique id suffix keeps gradient defs from colliding. */
+function chipSVG(n,color){
+  const base=color||RED, C='#f2ead6', uid='c'+n+base.slice(1);
   const PIPS={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],
     4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],
     6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]};
@@ -745,15 +757,21 @@ function chipSVG(n){
     g+=`<g transform='rotate(${30+i*60} 50 50)'><rect x='43' y='2.3' width='14' height='13' rx='2.5' fill='none' stroke='${C}' stroke-width='1.2' opacity='.8'/>${pips}</g>`;
   });
   return `<svg viewBox='0 0 100 100' aria-hidden='true'>
-    <defs><radialGradient id='chb${n}' cx='38%' cy='30%' r='85%'>
-      <stop offset='0%' stop-color='#c94a42'/><stop offset='55%' stop-color='#b0362e'/>
-      <stop offset='100%' stop-color='#8c2620'/></radialGradient></defs>
-    <circle cx='50' cy='50' r='49' fill='url(#chb${n})'/>${g}
-    <circle cx='50' cy='50' r='33.5' fill='none' stroke='#872420' stroke-width='1.6' opacity='.9'/>
-    <circle cx='50' cy='50' r='31.8' fill='none' stroke='#cf5850' stroke-width='.9' opacity='.7'/>
+    <defs><radialGradient id='${uid}' cx='38%' cy='30%' r='85%'>
+      <stop offset='0%' stop-color='${shade(base,26)}'/><stop offset='55%' stop-color='${base}'/>
+      <stop offset='100%' stop-color='${shade(base,-52)}'/></radialGradient></defs>
+    <circle cx='50' cy='50' r='49' fill='url(#${uid})'/>${g}
+    <circle cx='50' cy='50' r='33.5' fill='none' stroke='${shade(base,-58)}' stroke-width='1.6' opacity='.9'/>
+    <circle cx='50' cy='50' r='31.8' fill='none' stroke='${shade(base,46)}' stroke-width='.9' opacity='.7'/>
     <text x='50' y='51' font-size='31' text-anchor='middle' dominant-baseline='central'
       font-family='Times New Roman, Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
   </svg>`;
+}
+let lastChipColor=null;
+function paintChips(color){
+  if(color===lastChipColor)return;
+  lastChipColor=color;
+  document.querySelectorAll('#numwrap .numbtn').forEach(b=>{b.innerHTML=chipSVG(+b.dataset.n,color);});
 }
 function buildPlayersUI(){
   const box=$('players');
@@ -888,6 +906,7 @@ function renderAll(){
   $('undoBtn').disabled=!S.hist.length;
   $('redoBtn').disabled=!S.redo.length;
   $('numwrap').classList.toggle('off',S.sel==null||S.phase!=='play');
+  paintChips((S.sel!=null&&S.players[S.sel])?S.players[S.sel].color:RED);
 }
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1008,14 +1027,16 @@ function renderHandTool(){
     </div>`;
 }
 function renderDiscTool(){
-  $('discSlots').innerHTML=slotHtml(DT.cards,['card','card','card','card','card','card'])
+  const need=(S&&S.players&&S.players.length===3)?5:6;
+  if(DT.cards.length>need)DT.cards=DT.cards.slice(0,need);
+  $('discSlots').innerHTML=slotHtml(DT.cards,Array(need).fill('card'))
     +(DT.cards.length?'<button class="clearbtn" id="discClear">clear</button>':'');
   const dc=$('discClear');
   if(dc)dc.addEventListener('click',()=>{DT.cards=[];renderDiscTool();});
   document.querySelectorAll('#cribOwner button').forEach(b=>b.classList.toggle('on',+b.dataset.v===+DT.mine));
-  buildCardGrid('discGrid',DT.cards,6,renderDiscTool);
+  buildCardGrid('discGrid',DT.cards,need,renderDiscTool);
   const out=$('discResult');
-  if(DT.cards.length<6){out.innerHTML='<div class="toolnote">Pick '+(6-DT.cards.length)+' more card'+(6-DT.cards.length>1?'s':'')+'…</div>';return;}
+  if(DT.cards.length<need){out.innerHTML='<div class="toolnote">Pick '+(need-DT.cards.length)+' more card'+((need-DT.cards.length)>1?'s':'')+'…</div>';return;}
   out.innerHTML='<div class="toolnote">Calculating…</div>';
   setTimeout(()=>{
     const res=bestDiscards(DT.cards,DT.mine);
@@ -1033,7 +1054,7 @@ function init(){
   /* number pad: 1-16 dice-edge poker chips (bigger scores = two taps, e.g. 16 then 4) */
   for(let n=1;n<=16;n++){
     const b=document.createElement('button');
-    b.className='numbtn';
+    b.className='numbtn';b.dataset.n=n;
     b.innerHTML=chipSVG(n);
     b.addEventListener('click',()=>addScore(n));
     $('numwrap').appendChild(b);
@@ -1068,6 +1089,15 @@ function init(){
   const demoV=new URLSearchParams(location.search).get('demo');
   if(demoV!=null){
     DEMO=true;S=defaultState();
+    if(demoV==='3'||demoV==='disc3'){
+      startGame([{name:'John',color:RED},{name:'Amy',color:BLUE},{name:'Ben',color:GREEN}]);
+      for(const [pl,n] of [[0,5],[1,3],[2,8],[0,2],[1,12],[2,4],[0,8],[1,1]]){S.sel=pl;addScore(n);}
+      if(demoV==='disc3'){
+        DT.cards=[{r:5,su:0},{r:5,su:1},{r:6,su:2},{r:4,su:3},{r:11,su:0}];
+        renderDiscTool();$('discOverlay').classList.add('open');
+      }
+      return;
+    }
     startGame([{name:'Dana',color:RED},{name:'Sam',color:BLUE}]);
     for(const [pl,n] of [[0,5],[1,3],[0,2],[1,12],[0,8],[1,1],[0,17],[1,6],[0,4]]){S.sel=pl;addScore(n);}
     if(demoV==='win')while(S.phase==='play'){S.sel=0;addScore(29);}

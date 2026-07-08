@@ -33,8 +33,11 @@ The app is a beautiful board, not a rules referee: scoring is free-form, players
 - Wood-grain texture (SVG turbulence), slab gradient and vignette, **wooden rail with brass corner
   screws** framing the slab, and hole 121 separated from the 116–120 group by its own tick.
 - **One theme, mastered** (theme picker removed): green felt card table with fuzz texture and a
-  warm top sheen, walnut board, gold accents. Point buttons and player cards are ivory card-stock
-  styled like playing cards — serif numerals, corner suit pips (red pips on 1–6).
+  warm top sheen, walnut board, gold accents.
+- **Point buttons are 1–16 poker chips** (inline SVG modeled on a real dice chip: colored body,
+  white edge stripes, embossed dice faces 1–6, serif numeral). Scores above 16 are entered as two
+  taps (e.g. 20 = 16 then 4). The chips recolor to the **currently-selected player's color**, so it's
+  always clear whose points the next tap adds. Player cards are ivory card-stock.
 - No caption text on the board's match scoreboard, and no scoring-hint text under the board.
 
 ## Players & setup
@@ -97,9 +100,11 @@ Match points can never go below 0.
 
 - **Hand counter**: pick 4 hand cards + a cut card from a tap grid (rank × suit, no typing) →
   exact score with breakdown (fifteens, pairs, runs, flush, nobs). "Crib hand" toggle (crib requires a 5-card flush).
-- **Discard optimizer**: pick 6 cards + whose crib it is → for each of the 15 possible keeps,
-  expected hand value (exact over all 46 cuts) ± expected crib value (Monte Carlo over opponent
-  discards and cut). Shows ranked results; best keep highlighted.
+- **Discard optimizer**: pick your dealt cards — **6 in a 2-player game, 5 in a 3-player game**
+  (the tool reads the current player count) — plus whose crib it is. Always keeps 4; for each
+  possible discard it shows expected hand value (exact over all cuts) ± expected crib value
+  (Monte Carlo, with the crib filled to 4 cards from unseen cards). Shows ranked results; best
+  keep highlighted. (2-player has 15 keeps, 3-player has 5.)
 
 ## Menu drawer
 
@@ -113,4 +118,4 @@ New match / change players (back to setup, confirm).
 
 ## Testing hook
 
-`index.html?demo` auto-starts a throwaway 2-player demo game with sample scores (no persistence) — used for headless screenshot verification. Variants: `?demo=win` (plays to 121 to show the game-over screen), `?demo=hand` (opens the hand counter pre-filled with the perfect 29), `?demo=disc` (opens the discard helper pre-filled with 6 cards).
+`index.html?demo` auto-starts a throwaway 2-player demo game with sample scores (no persistence) — used for headless screenshot verification. Variants: `?demo=win` (plays to 121 to show the game-over screen), `?demo=hand` (opens the hand counter pre-filled with the perfect 29), `?demo=disc` (opens the 2-player discard helper pre-filled with 6 cards), `?demo=3` (3-player game, Amy/blue selected — shows blue chips), `?demo=disc3` (opens the 3-player discard helper pre-filled with 5 cards).
