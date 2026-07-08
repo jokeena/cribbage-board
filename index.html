@@ -581,6 +581,13 @@ function shade(hex,amt){
   const f=c=>Math.max(0,Math.min(255,c+amt));
   return '#'+((f(n>>16&255)<<16|f(n>>8&255)<<8|f(n&255)).toString(16).padStart(6,'0'));
 }
+/* multiplicative darken: scales each channel toward black, so a color's
+   dominant channel drops proportionally (a flat shade leaves it too bright) */
+function darken(hex,f){
+  const n=parseInt(hex.slice(1),16);
+  const g=c=>Math.max(0,Math.min(255,Math.round(c*f)));
+  return '#'+((g(n>>16&255)<<16|g(n>>8&255)<<8|g(n&255)).toString(16).padStart(6,'0'));
+}
 
 let pegEls=[],matchEls=[];
 function el(tag,attrs,parent){
@@ -745,7 +752,9 @@ const $=id=>document.getElementById(id);
    Body color follows the currently-selected player so it's clear whose points
    you're about to add. Unique id suffix keeps gradient defs from colliding. */
 function chipSVG(n,color){
-  const base=color||RED, C='#f2ead6', uid='c'+n+base.slice(1);
+  /* chips run darker/richer than the raw player color so they sit in the
+     walnut/felt palette instead of glowing as bright primaries */
+  const base=darken(color||RED,0.64), C='#f2ead6', uid='c'+n+base.slice(1);
   const PIPS={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],
     4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],
     6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]};
@@ -758,11 +767,11 @@ function chipSVG(n,color){
   });
   return `<svg viewBox='0 0 100 100' aria-hidden='true'>
     <defs><radialGradient id='${uid}' cx='38%' cy='30%' r='85%'>
-      <stop offset='0%' stop-color='${shade(base,26)}'/><stop offset='55%' stop-color='${base}'/>
-      <stop offset='100%' stop-color='${shade(base,-52)}'/></radialGradient></defs>
+      <stop offset='0%' stop-color='${shade(base,16)}'/><stop offset='55%' stop-color='${base}'/>
+      <stop offset='100%' stop-color='${shade(base,-46)}'/></radialGradient></defs>
     <circle cx='50' cy='50' r='49' fill='url(#${uid})'/>${g}
-    <circle cx='50' cy='50' r='33.5' fill='none' stroke='${shade(base,-58)}' stroke-width='1.6' opacity='.9'/>
-    <circle cx='50' cy='50' r='31.8' fill='none' stroke='${shade(base,46)}' stroke-width='.9' opacity='.7'/>
+    <circle cx='50' cy='50' r='33.5' fill='none' stroke='${shade(base,-50)}' stroke-width='1.6' opacity='.9'/>
+    <circle cx='50' cy='50' r='31.8' fill='none' stroke='${shade(base,34)}' stroke-width='.9' opacity='.7'/>
     <text x='50' y='51' font-size='31' text-anchor='middle' dominant-baseline='central'
       font-family='Times New Roman, Georgia, serif' font-weight='700' fill='${C}'>${n}</text>
   </svg>`;
