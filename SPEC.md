@@ -84,20 +84,23 @@ When a front peg reaches/passes 121 (capped at 121):
 Shown as up to 7 peg dots on each player card. **First to 7 wins the match.**
 Match points can never go below 0.
 
-- **Win** = winner +1.
-- **Each skunked opponent drops** by their skunk depth: single skunk (opponent finished ≤ 90) = −1,
-  double skunk (≤ 60) = −2 — but never below 0 match points.
-- **Unpayable ("floating") points**: whatever a skunked opponent can't pay (because they'd go below 0)
-  doesn't just vanish or all pile on the winner. Those points are handed out one at a time, in
-  priority order: **the winner first, then the least-skunked *other* opponent(s)**. This keeps a skunk
-  meaningful even against a broke opponent while spreading the benefit.
-- **3-player** works the same way, per opponent, with floating points shared as above. Worked examples
-  (blue wins, double-skunks green, single-skunks red):
-  - Everyone at 0/0/0 → **blue 3, red 1, green 0** (green's 2 unpayable points float to blue + red;
-    red's 1 unpayable point floats to blue; plus blue's +1 win).
-  - Starting 4/3/3 → **5/2/1** (nobody's broke, so it's just win +1, red −1, green −2).
-- **2-player** falls out of the same rule: skunk of a broke opponent → winner +2; double skunk of a
-  broke opponent → winner +3; if the loser has points they drop instead (down 1 / down 2).
+Skunk depth is read from each opponent's final board score: **single skunk** if they finished ≤ 90,
+**double skunk** if ≤ 60.
+
+- **Winner** gets **+1 for the win, plus the depth of their single worst *unpayable* skunk** — i.e.
+  how far a skunked opponent had to drop but couldn't (because they'd go below 0). Skunking a broke
+  opponent adds +2 for a double / +1 for a single; skunking opponents who can afford the drop adds
+  nothing extra. The bonus is the *worst* skunk only — it does **not** stack across several opponents.
+- **Each skunked opponent drops** by 1 (single) / 2 (double), but never below 0 **and** never below
+  their **ladder rung**: among the skunked opponents the most-skunked sit at 0, and each less-skunked
+  one sits one rung higher — so a single-skunked player never ends below a double-skunked one.
+- Worked examples (winner double-skunks green, single-skunks red, from 0/0/0):
+  **winner 3, red 1 (single, one rung up), green 0 (double, bottom)**.
+  - Double-skunk **both** opponents from 0/0/0 → **winner 3, 0, 0** (bonus doesn't stack; both at the
+    bottom rung).
+  - Everyone has points, 4/3/3 → **5/2/1** (nobody's broke: win +1, single −1, double −2).
+- **2-player** falls out of the same rule: skunk of a broke opponent → winner +2, double skunk of a
+  broke opponent → winner +3; if the loser has points they just drop (−1 / −2).
 - Reaching 7 → **match celebration**, then the match pegs reset for a new match (game winner takes
   precedence if multiple players cross 7 in the same resolution).
 
