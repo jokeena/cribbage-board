@@ -71,8 +71,10 @@ body {
   padding-top: max(4px, env(safe-area-inset-top)); }
 #leftcol { flex: 0 0 auto; display: flex; flex-direction: column; gap: 9px;
   padding: 3px 0 0 max(8px, env(safe-area-inset-left)); }
-#board { flex: 1; min-width: 0; height: 100%; display: block;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+/* No CSS filter here: a filter forces the whole board to re-rasterize every
+   peg-animation frame and blocks the main thread (~1s on a phone), which froze
+   tapped chips in their pressed state. Shadow is baked into the SVG instead. */
+#board { flex: 1; min-width: 0; height: 100%; display: block; }
 #topbar { display: grid; grid-template-columns: repeat(2, 40px); gap: 7px; }
 #topbar button { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--wood-edge);
   background: linear-gradient(180deg, var(--wood-hi), var(--wood)); color: var(--wood-ink);
@@ -136,7 +138,10 @@ body {
   background: radial-gradient(circle at 37% 29%, var(--chip-hi), var(--chip) 56%, var(--chip-lo));
   box-shadow: 0 2.5px 3px rgba(0,0,0,.45); }
 .numbtn svg { display: block; width: 100%; height: 100%; }
-.numbtn:active { transform: translateY(1.5px) scale(.97); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+/* press feedback must NOT move the chip (no transform): if renderAll blocks the
+   main thread, a transform would stay stuck on screen and read as a shift. An
+   inset shadow gives a pressed look without changing geometry. */
+.numbtn:active { box-shadow: inset 0 3px 8px rgba(0,0,0,.45), 0 1px 2px rgba(0,0,0,.35); }
 
 /* always-visible recent moves, under the buttons in the left column */
 #recent { display: flex; flex-direction: column; gap: 4px; width: 87px; pointer-events: none; }
@@ -164,7 +169,7 @@ body {
 .mname { font-size: 13px; font-weight: 700; text-anchor: end; dominant-baseline: middle; }
 .mhole { fill: var(--hole); stroke: var(--hole-ring); stroke-width: 1; }
 .peg circle { transition: r .2s; }
-.peg { transition: transform .5s cubic-bezier(.35,1.3,.45,1); }
+.peg { transition: transform .5s cubic-bezier(.35,1.3,.45,1); will-change: transform; }
 
 /* ---- drawers ---- */
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none;
@@ -652,6 +657,9 @@ function buildBoard(){
   const fl=el('filter',{id:'grain',x:'0%',y:'0%',width:'100%',height:'100%'},defs);
   el('feTurbulence',{type:'fractalNoise',baseFrequency:'0.009 0.13',numOctaves:3,seed:11},fl);
   el('feColorMatrix',{type:'matrix',values:'0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .9 .9 .9 0 0'},fl);
+  /* static slab shadow (baked in, not a CSS filter, so peg animation stays cheap) */
+  const sh=el('filter',{id:'slabsh',x:'-6%',y:'-6%',width:'112%',height:'122%'},defs);
+  el('feGaussianBlur',{stdDeviation:8},sh);
   /* clip the noise back to the rounded rect (filters ignore the source shape) */
   el('feComposite',{in2:'SourceAlpha',operator:'in'},fl);
   const vg=el('radialGradient',{id:'vig',cx:'50%',cy:'50%',r:'72%'},defs);
@@ -671,6 +679,7 @@ function buildBoard(){
     el('stop',{offset:'100%','stop-color':shade(p.color,-45)},rg);
   });
   /* slab + wooden rail + brass screws */
+  el('rect',{x:20,y:32,width:1160,height:388,rx:50,fill:'rgba(0,0,0,.4)',filter:'url(#slabsh)'},svg);
   el('rect',{x:20,y:26,width:1160,height:386,rx:50,fill:'url(#slabg)',stroke:'var(--board-edge)','stroke-width':4},svg);
   el('rect',{x:20,y:26,width:1160,height:386,rx:50,filter:'url(#grain)',opacity:.16},svg);
   el('rect',{x:16,y:22,width:1168,height:394,rx:53,fill:'none',stroke:'url(#railg)','stroke-width':11},svg);
